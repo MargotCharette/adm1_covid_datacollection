@@ -4,31 +4,54 @@ library(XML)
 library(openxlsx)
 
 #add here package
-library(here)
-#modify file reading script, so it works with relative paths
-g_cases <- import(here("data", "downloads", "guatemala", "confirmados_mapa.xlsx"))
+pacman::p_load(
+  tidyverse,    # data management + ggplot2 graphics (will load core tidyverse packages such as: ggplot2, dplyr, tidyr)
+  lubridate,    # working with dates/epiweeks
+  skimr,        # summary stats ov variables in dataset
+  rio,          # file import/export
+  here,         # relative filepaths
+)
 
-g_cases <- data.frame(read_excel("~/PAHO/GIS/Guatemala/confirmados_mapa.xlsx", skip=1))
+
+#cases
+#modify file reading script, so it works with relative paths (make sure to not skip first row when importing as well as first column)
+g_cases <- import(here("data", "downloads", "guatemala", "confirmados_mapa.xlsx"), skip=1)                   #use this instead of the following line
+g_cases <- data.frame(read_excel("~/PAHO/GIS/Guatemala/confirmados_mapa.xlsx", skip=1))                      #Raj's path
+
 g_cases <- subset(g_cases, select=-c(1, municipio, poblacion))
 print(g_cases)
+
+#calculate sum cases per department
 g_cases_2 <- aggregate(g_cases$casos, by=list(Category=g_cases$departamento), FUN=sum)
 print(g_cases_2)
 g_cases_2$Category[g_cases_2$Category == "EL PROGRESO"] <- "PROGRESO"
 g_cases_2$Category[g_cases_2$Category == "SIN DATOS"] <- "UNASSIGNED"
-g_deaths <- data.frame(read_excel("~/PAHO/GIS/Guatemala/fallecidos_mapa.xlsx", skip=1))
+
+#deaths --watch out it appears that the fallecidos download named 'casos' the death column...
+g_deaths <- import(here("data", "downloads", "guatemala", "fallecidos_mapa.xlsx"), skip=1)                 #use this instead of the following line
+g_deaths <- data.frame(read_excel("~/PAHO/GIS/Guatemala/fallecidos_mapa.xlsx", skip=1))                    #Raj's path
+
 g_deaths <- subset(g_deaths, select=-c(1, municipio, poblacion))
 print(g_deaths)
+
+##calculate sum deaths per department
 g_deaths_2 <- aggregate(g_deaths$casos, by=list(Category=g_deaths$departamento), FUN=sum)
 print(g_deaths_2)
 g_deaths_2$Category[g_deaths_2$Category == "EL PROGRESO"] <- "PROGRESO"
 g_deaths_2$Category[g_deaths_2$Category == "SIN DATOS"] <- "UNASSIGNED"
+
+
 #g <- data.frame(g_cases_2$Category, g_cases_2$x, g_deaths_2$x)
 #write.xlsx(g, file="~/PAHO/GIS/Guatemala/g.xlsx")
 #write.xlsx(g_cases_table, file="~/PAHO/GIS/Guatemala/g_cases.xlsx")
 #write.xlsx(g_deaths_table, file="~/PAHO/GIS/Guatemala/g_deaths.xlsx")
+
 g_cases_table <- data.frame(g_cases_2$Category, g_cases_2$x)
 g_deaths_table <- data.frame(g_deaths_2$Category, g_deaths_2$x)
+
+#join cases and deaths
 gtm_table <- left_join(g_cases_table, g_deaths_table, by=c("g_cases_2.Category"="g_deaths_2.Category"))
+#cleaning department names in the merged gtm_table
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'ALTA VERAPAZ'] <- 'AV'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'BAJA VERAPAZ'] <- 'BV'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'CHIMALTENANGO'] <- 'CM'
@@ -53,4 +76,11 @@ gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'TOTONICAPAN'] <- '
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'ZACAPA'] <- 'ZA'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'UNASSIGNED'] <- '999'
 gtm_table <- gtm_table[order(gtm_table$g_cases_2.Category),]
-write.xlsx(gtm_table, file="~/PAHO/GIS/Guatemala/g.xlsx")
+
+
+#save clean data
+write.xlsx(gtm_table, here("data", "clean", "guatemala", "g.xlsx"))                           #use this instead of the following line
+write.xlsx(gtm_table, file="~/PAHO/GIS/Guatemala/g.xlsx")                                     #Raj's path
+
+
+

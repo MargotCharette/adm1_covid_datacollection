@@ -126,13 +126,25 @@ COL2<- COL %>% group_by(Nombre.departamento) %>% count(Nombre.departamento)
 head(COL2)
 write.xlsx(COL2, file="COL2.xlsx")
 
-## PRI
 
-pri <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_casos.csv", sep = ",")
+
+
+
+
+## PRI
+pri <- import(here("data", "downloads", "puerto_rico", "dataset_casos.csv"), sep = ",")   #Margot's relative path
+pri <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_casos.csv", sep = ",")                    #Raj's path
+
+#clean city names
 pri$City[pri$City == "FUERA_DE_PR"] <- "Unassigned"
 pri$City[pri$City == "N/A"] <- "Unassigned"
 pri$City[pri$City == "OTROS"] <- "Unassigned"
-pri2 <- pri %>% group_by(City) %>% count(City)
+
+pri2 <- 
+  pri %>% 
+  group_by(City) %>% 
+  count(City) %>%
+  rename(cases = n)                          #Margot added this line to keep track of columns after merging
 
 #pri_death <- read.csv("dataset_defunciones.csv", sep = ",")
 #pri.death <- pri_death %>% group_by(CO_REGION) %>% count(CO_REGION) --> only regional level
@@ -143,14 +155,24 @@ sum(pri2$n)
 #write.xlsx(pri2, file="~/PAHO/GIS/Puerto Rico/pri_adm1.xlsx")
 
 # PRI Deaths
+pri_deaths <- import(here("data", "downloads", "puerto_rico", "dataset_defunciones.csv"), sep = ",")   #Margot's relative path
+pri_deaths <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_defunciones.csv", sep = ",")                    #Raj's path
 
-pri_deaths <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_defunciones.csv", sep = ",")
+#clean region names
 pri_deaths$CO_REGION[pri_deaths$CO_REGION == "FUERA_DE_PR"] <- "Unassigned"
 pri_deaths$CO_REGION[pri_deaths$CO_REGION == "N/A"] <- "Unassigned"
-pri_deaths_2 <- pri_deaths %>% group_by(CO_REGION) %>% count(CO_REGION)
+
+pri_deaths_2 <- 
+  pri_deaths %>% 
+  group_by(CO_REGION) %>% 
+  count(CO_REGION) %>%
+  rename(deaths = n)                          #Margot added this line to keep track of columns after merging
+
 
 #write.xlsx(pri_deaths_2, file="~/PAHO/GIS/Puerto Rico/pri_adm1_deaths.xlsx")
 
+#join PRI cases and deaths
 pri_table <- left_join(pri2, pri_deaths_2, by=c("City"="CO_REGION"))
 
-write.xlsx(pri_table, file="~/PAHO/GIS/Puerto Rico/pri_table.xlsx")
+write.xlsx(pri_table, here("data", "clean", "puerto_rico", "pri_table.xlsx"))                  #Margot's relative path
+write.xlsx(pri_table, file="~/PAHO/GIS/Puerto Rico/pri_table.xlsx")                            #Raj's path
