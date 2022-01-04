@@ -16,29 +16,34 @@ pacman::p_load(
 #cases
 #modify file reading script, so it works with relative paths (make sure to not skip first row when importing as well as first column)
 g_cases <- import(here("data", "downloads", "guatemala", "confirmados_mapa.xlsx"), skip=1)                   #use this instead of the following line
-g_cases <- data.frame(read_excel("~/PAHO/GIS/Guatemala/confirmados_mapa.xlsx", skip=1))                      #Raj's path
+#g_cases <- data.frame(read_excel("~/PAHO/GIS/Guatemala/confirmados_mapa.xlsx", skip=1))                      #Raj's path
+g_cases$departamento[g_cases$departamento == "EL PROGRESO"] <- "PROGRESO"
+g_cases$departamento[g_cases$departamento == "SIN DATOS"] <- "UNASSIGNED"
 
 g_cases <- subset(g_cases, select=-c(1, municipio, poblacion))
-print(g_cases)
 
 #calculate sum cases per department
 g_cases_2 <- aggregate(g_cases$casos, by=list(Category=g_cases$departamento), FUN=sum)
 print(g_cases_2)
-g_cases_2$Category[g_cases_2$Category == "EL PROGRESO"] <- "PROGRESO"
-g_cases_2$Category[g_cases_2$Category == "SIN DATOS"] <- "UNASSIGNED"
+
+
 
 #deaths --watch out it appears that the fallecidos download named 'casos' the death column...
 g_deaths <- import(here("data", "downloads", "guatemala", "fallecidos_mapa.xlsx"), skip=1)                 #use this instead of the following line
-g_deaths <- data.frame(read_excel("~/PAHO/GIS/Guatemala/fallecidos_mapa.xlsx", skip=1))                    #Raj's path
+#g_deaths <- data.frame(read_excel("~/PAHO/GIS/Guatemala/fallecidos_mapa.xlsx", skip=1))                    #Raj's path
+
+#label the unassigned data and clean spelling
+g_deaths$departamento[g_deaths$departamento == "NO REFIERE"] <- "UNASSIGNED"
+g_deaths$departamento[g_deaths$departamento == "(OTROS)"] <- "UNASSIGNED"
+g_deaths$departamento[g_deaths$departamento == "SIN DATOS"] <- "UNASSIGNED"
+g_deaths$departamento[g_deaths$departamento == "EL PROGRESO"] <- "PROGRESO"
+
 
 g_deaths <- subset(g_deaths, select=-c(1, municipio, poblacion))
-print(g_deaths)
 
 ##calculate sum deaths per department
 g_deaths_2 <- aggregate(g_deaths$casos, by=list(Category=g_deaths$departamento), FUN=sum)
 print(g_deaths_2)
-g_deaths_2$Category[g_deaths_2$Category == "EL PROGRESO"] <- "PROGRESO"
-g_deaths_2$Category[g_deaths_2$Category == "SIN DATOS"] <- "UNASSIGNED"
 
 
 #g <- data.frame(g_cases_2$Category, g_cases_2$x, g_deaths_2$x)
@@ -48,9 +53,10 @@ g_deaths_2$Category[g_deaths_2$Category == "SIN DATOS"] <- "UNASSIGNED"
 
 g_cases_table <- data.frame(g_cases_2$Category, g_cases_2$x)
 g_deaths_table <- data.frame(g_deaths_2$Category, g_deaths_2$x)
+print(g_deaths_table)
 
 #join cases and deaths
-gtm_table <- left_join(g_cases_table, g_deaths_table, by=c("g_cases_2.Category"="g_deaths_2.Category"))
+gtm_table <- full_join(g_cases_table, g_deaths_table, by=c("g_cases_2.Category"="g_deaths_2.Category"))
 #cleaning department names in the merged gtm_table
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'ALTA VERAPAZ'] <- 'AV'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'BAJA VERAPAZ'] <- 'BV'
@@ -64,6 +70,7 @@ gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'JALAPA'] <- 'JA'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'JUTIAPA'] <- 'JU'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'PETEN'] <- 'PE'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'PROGRESO'] <- 'PR'
+gtm_table$g_deaths_2.Category[gtm_table$g_deaths_2.Category == 'PROGRESO'] <- 'PR'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'QUETZALTENANGO'] <- 'QZ'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'QUICHE'] <- 'QC'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'RETALHULEU'] <- 'RE'
@@ -75,12 +82,15 @@ gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'SUCHITEPEQUEZ'] <-
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'TOTONICAPAN'] <- 'TO'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'ZACAPA'] <- 'ZA'
 gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'UNASSIGNED'] <- '999'
+
 gtm_table <- gtm_table[order(gtm_table$g_cases_2.Category),]
 
 
+#NOTE: on dec 13, there are 5 unassigned deaths under depto 'OTROS' or 'NO REFIERE' - need to place these in UNASSIGNED (add code here) (FIXED)
+
 #save clean data
-write.xlsx(gtm_table, here("data", "clean", "guatemala", "g.xlsx"))                           #use this instead of the following line
-write.xlsx(gtm_table, file="~/PAHO/GIS/Guatemala/g.xlsx")                                     #Raj's path
+write.csv(gtm_table, here("data", "clean", "guatemala", "g.csv"))                           #use this instead of the following line
+#write.xlsx(gtm_table, file="~/PAHO/GIS/Guatemala/g.xlsx")                                     #Raj's path
 
 
 

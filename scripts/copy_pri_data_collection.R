@@ -133,7 +133,7 @@ write.xlsx(COL2, file="COL2.xlsx")
 
 ## PRI
 pri <- import(here("data", "downloads", "puerto_rico", "dataset_casos.csv"), sep = ",")   #Margot's relative path
-pri <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_casos.csv", sep = ",")                    #Raj's path
+#pri <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_casos.csv", sep = ",")                    #Raj's path
 
 #clean city names
 pri$City[pri$City == "FUERA_DE_PR"] <- "Unassigned"
@@ -150,17 +150,20 @@ pri2 <-
 #pri.death <- pri_death %>% group_by(CO_REGION) %>% count(CO_REGION) --> only regional level
 
 #check the totals
-sum(pri2$n)
+sum(pri2$cases)
 
 #write.xlsx(pri2, file="~/PAHO/GIS/Puerto Rico/pri_adm1.xlsx")
 
 # PRI Deaths
 pri_deaths <- import(here("data", "downloads", "puerto_rico", "dataset_defunciones.csv"), sep = ",")   #Margot's relative path
-pri_deaths <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_defunciones.csv", sep = ",")                    #Raj's path
+#pri_deaths <- read.csv("~/PAHO/GIS/Puerto Rico/dataset_defunciones.csv", sep = ",")                    #Raj's path
 
 #clean region names
 pri_deaths$CO_REGION[pri_deaths$CO_REGION == "FUERA_DE_PR"] <- "Unassigned"
 pri_deaths$CO_REGION[pri_deaths$CO_REGION == "N/A"] <- "Unassigned"
+pri_deaths$CO_REGION[pri_deaths$CO_REGION == "METROPOLITANO"] <- "SAN_JUAN"
+
+##Question: what does Metropolitano refer to in deaths dataset? it is not listed as is in the cases dataset...
 
 pri_deaths_2 <- 
   pri_deaths %>% 
@@ -168,11 +171,17 @@ pri_deaths_2 <-
   count(CO_REGION) %>%
   rename(deaths = n)                          #Margot added this line to keep track of columns after merging
 
+#check the totals
+sum(pri_deaths_2$deaths)
 
 #write.xlsx(pri_deaths_2, file="~/PAHO/GIS/Puerto Rico/pri_adm1_deaths.xlsx")
 
 #join PRI cases and deaths
-pri_table <- left_join(pri2, pri_deaths_2, by=c("City"="CO_REGION"))
+pri_table <- full_join(pri2, pri_deaths_2, by=c("City"="CO_REGION"))
 
-write.xlsx(pri_table, here("data", "clean", "puerto_rico", "pri_table.xlsx"))                  #Margot's relative path
-write.xlsx(pri_table, file="~/PAHO/GIS/Puerto Rico/pri_table.xlsx")                            #Raj's path
+#problem with deaths (should equal 3274), probably when joining the data
+
+#pri_table <- left_join(pri_deaths_2, pri2, by=c("CO_REGION"="City"))
+
+write.csv(pri_table, here("data", "clean", "puerto_rico", "pri_table.csv"))                  #Margot's relative path
+#write.xlsx(pri_table, file="~/PAHO/GIS/Puerto Rico/pri_table.xlsx")                            #Raj's path
