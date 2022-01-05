@@ -22,11 +22,10 @@ pacman::p_load(
 
 #cases
 #modify file reading script, so it works with relative paths (make sure to not skip first row when importing as well as first column)
-PRY <- import(here("data", "downloads", "paraguay", "Descargar_datos.csv"))                   #use this instead of the following line
+PRY <- import(here("data", "downloads", "paraguay", "Descargar_datos.csv"))                   #using relative paths
 # Import cases
 #PRY <- data.frame(read.csv(file = "~/PAHO/GIS/Paraguay/Descargar_datos_data.csv"))
 #JUST IN CASE: PRY <- data.frame(read.csv(file = "C:/Users/PC/Documents/GitHub/adm1_covid_datacollection/data/downloads/paraguay/Descargar_datos.csv"))
-##NEED TO EDIT COLUMN HEADERS to remove the space
 
 head(PRY)
 PRY <- PRY %>% 
@@ -43,7 +42,7 @@ PRY_cases <- PRY  %>%
 
 
 # Import deaths
-PRY_2 <- import(here("data", "downloads", "paraguay", "FALLECIDOS.csv"), header = T)                   #use this instead of the following line
+PRY_2 <- import(here("data", "downloads", "paraguay", "FALLECIDOS.csv"), header = T)                   #using relative paths
 #PRY_2 <- data.frame(read.csv(file = "~/PAHO/GIS/Paraguay/FALLECIDOS_data.csv"))
 
 head(PRY_2)
