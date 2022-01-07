@@ -14,9 +14,9 @@ pacman::p_load(
 
 
 #cases
-#modify file reading script, so it works with relative paths (make sure to not skip first row when importing as well as first column)
-g_cases <- import(here("data", "downloads", "guatemala", "confirmados_mapa.xlsx"), skip=1)                   #use this instead of the following line
-#g_cases <- data.frame(read_excel("~/PAHO/GIS/Guatemala/confirmados_mapa.xlsx", skip=1))                      #Raj's path
+#using relative paths (make sure to not skip first row when importing as well as first column)
+g_cases <- import(here("data", "downloads", "guatemala", "confirmados_mapa.xlsx"), skip=1)
+#g_cases <- data.frame(read_excel("~/PAHO/GIS/Guatemala/confirmados_mapa.xlsx", skip=1))                 #Raj's original path
 g_cases$departamento[g_cases$departamento == "EL PROGRESO"] <- "PROGRESO"
 g_cases$departamento[g_cases$departamento == "SIN DATOS"] <- "UNASSIGNED"
 
@@ -28,9 +28,11 @@ print(g_cases_2)
 
 
 
-#deaths --watch out it appears that the fallecidos download named 'casos' the death column...
-g_deaths <- import(here("data", "downloads", "guatemala", "fallecidos_mapa.xlsx"), skip=1)                 #use this instead of the following line
-#g_deaths <- data.frame(read_excel("~/PAHO/GIS/Guatemala/fallecidos_mapa.xlsx", skip=1))                    #Raj's path
+#deaths
+#use relative paths for deaths too
+#careful: it appears that the fallecidos download named 'casos' the death column...
+g_deaths <- import(here("data", "downloads", "guatemala", "fallecidos_mapa.xlsx"), skip=1)
+#g_deaths <- data.frame(read_excel("~/PAHO/GIS/Guatemala/fallecidos_mapa.xlsx", skip=1))                   #Raj's original path
 
 #label the unassigned data and clean spelling
 g_deaths$departamento[g_deaths$departamento == "NO REFIERE"] <- "UNASSIGNED"
@@ -86,11 +88,10 @@ gtm_table$g_cases_2.Category[gtm_table$g_cases_2.Category == 'UNASSIGNED'] <- '9
 gtm_table <- gtm_table[order(gtm_table$g_cases_2.Category),]
 
 
-#NOTE: on dec 13, there are 5 unassigned deaths under depto 'OTROS' or 'NO REFIERE' - need to place these in UNASSIGNED (add code here) (FIXED)
 
-#save clean data
-write.csv(gtm_table, here("data", "clean", "guatemala", "g.csv"))                           #use this instead of the following line
-#write.xlsx(gtm_table, file="~/PAHO/GIS/Guatemala/g.xlsx")                                     #Raj's path
+#save clean data (line below also use relative paths)
+write.csv(gtm_table, here("data", "clean", "guatemala", "g.csv"))
+#write.xlsx(gtm_table, file="~/PAHO/GIS/Guatemala/g.xlsx")                                     #Raj's original path
 
 
 

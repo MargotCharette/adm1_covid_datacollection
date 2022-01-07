@@ -9,8 +9,7 @@ library(lubridate)
 #NOTE: for now still need to re-save data as CSV (issue with format)
 
 
-#Margot's edits to run on my computer:
-#add here package
+#add here package to be able to use relative paths
 pacman::p_load(
   tidyverse,    # data management + ggplot2 graphics (will load core tidyverse packages such as: ggplot2, dplyr, tidyr)
   lubridate,    # working with dates/epiweeks
@@ -25,7 +24,7 @@ pacman::p_load(
 PRY <- import(here("data", "downloads", "paraguay", "Descargar_datos.csv"))                   #using relative paths
 # Import cases
 #PRY <- data.frame(read.csv(file = "~/PAHO/GIS/Paraguay/Descargar_datos_data.csv"))
-#JUST IN CASE: PRY <- data.frame(read.csv(file = "C:/Users/PC/Documents/GitHub/adm1_covid_datacollection/data/downloads/paraguay/Descargar_datos.csv"))
+#JUST IN CASE ALTERNATIVE OPTION: PRY <- data.frame(read.csv(file = "C:/Users/PC/Documents/GitHub/adm1_covid_datacollection/data/downloads/paraguay/Descargar_datos.csv"))
 
 head(PRY)
 PRY <- PRY %>% 
