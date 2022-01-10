@@ -163,7 +163,6 @@ pri_deaths$CO_REGION[pri_deaths$CO_REGION == "FUERA_DE_PR"] <- "Unassigned"
 pri_deaths$CO_REGION[pri_deaths$CO_REGION == "N/A"] <- "Unassigned"
 pri_deaths$CO_REGION[pri_deaths$CO_REGION == "METROPOLITANO"] <- "SAN_JUAN"
 
-##Question: what does Metropolitano refer to in deaths dataset? it is not listed as is in the cases dataset...
 
 pri_deaths_2 <- 
   pri_deaths %>% 
