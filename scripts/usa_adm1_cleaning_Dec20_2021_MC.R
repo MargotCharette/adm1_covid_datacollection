@@ -30,7 +30,7 @@ overseas <- c("AS","GU","FSM","MP","PW", "PR","VI", "RMI")
 usa_covid <- usa_covid %>%
   filter(!state %in% overseas)  %>%
   mutate(date = as.Date(submission_date, format = "%m/%d/%Y")) %>%
-  filter(date == "2021-12-31") %>%                                                           ####MAKE SURE TO UPDATE THE DATE for Saturday - 1 day####
+  filter(date == "2022-04-29") %>%                                                           ####MAKE SURE TO UPDATE THE DATE for Saturday - 1 day####
   group_by(state) %>%
   summarise(cases = sum(tot_cases),
             deaths = sum(tot_death)) %>%                 # to add the 2 NY values (from new york state and new york city)
